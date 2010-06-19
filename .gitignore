@@ -1,0 +1,8 @@
+.DS_Store
+.project
+.loadpath
+.tmp*
+test/test_app
+tmp
+pkg
+rdoc
