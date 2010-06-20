@@ -11,7 +11,7 @@ RENDER_INHERITABLE_GEMSPEC = Gem::Specification.new do |spec|
 	spec.email    = 'spam@codez.ch' 
 	spec.homepage = 'http://codez.ch/render_inheritable'
 		
-	spec.summary = "A Rails 3 plugin that allows one to inherit or override single templates for controller subclasses."
+	spec.summary = "A Rails 3 plugin that allows one to inherit or override single templates for controller hierarchies."
 	spec.description = <<-END
 With this gem, a template is searched in the current controller's view folder (as usual). 
 If it is not found there, the template with the same name in the view folder of the 
