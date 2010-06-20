@@ -1,7 +1,9 @@
+require File.join(File.dirname(__FILE__), 'rails_integration')
 
+# Inherit or override single partials and templates for controller subclasses.
 module RenderInheritable
   
-  # Add inheritable_root_path method to includer
+  # Add inheritable_root_path method to including controller.
   def self.included(controller_class)
     controller_class.send(:extend, ClassMethods)
     
@@ -33,11 +35,12 @@ module RenderInheritable
     end
     
     # Performs a lookup for a controller and returns the name of the most specific one found.
-    # This method is primarly usefull when given a 'with' argument, that is used
-    # in a custom lookup_path. 
+    # This method is primarly usefull when given a 'param' argument that is used
+    # in a custom #template_lookup_path. In this case, no controller class would need to 
+    # exist to render templates from corresponding view folders.
     def inheritable_controller(param = nil)
       c = find_inheritable_artifact(param) do |folder|
-        ActionController::Routing.possible_controllers.any? { |c| c == folder }
+        ActionController::Base.subclasses.any? { |c| c.constantize.controller_path == folder }
       end
       c || inheritable_root_controller.controller_path
     end
@@ -52,7 +55,7 @@ module RenderInheritable
     
     # An array of controller names / folders, ordered from most specific to most general.
     # May be dynamic dependening on the passed 'param' argument. 
-    # You may override this method in an own controller to customize the lookup path.
+    # You may override this method in an own controller to customize the lookup path.
     def template_lookup_path(param = nil)
       inheritance_lookup_path
     end
@@ -68,6 +71,7 @@ module RenderInheritable
     
     private
     
+    # Performs a lookup for a template folder using the cache.
     def find_inheritable_template_folder_cached(view_context, name, partial, formats, param = nil)
       prefix = inheritable_cache_get(formats, name, partial, param)
       return prefix if prefix
@@ -81,6 +85,7 @@ module RenderInheritable
       prefix
     end
     
+    # A simple template lookup cache for each controller.
     def inheritable_cache #:nodoc:
       # do not store keys on each access, only return default structure
       @inheritable_cache ||= Hash.new do |h1, k1| 
@@ -92,31 +97,34 @@ module RenderInheritable
       end
     end
     
+    # Gets the prefix from the cache. Returns nil if it's not there yet.
     def inheritable_cache_get(formats, name, partial, param)
       prefixes = formats.collect { |format| inheritable_cache[format.to_sym][partial][name][param] }
       prefixes.compact!
       prefixes.empty? ?  nil : prefixes.first
     end
     
+    # Stores the found prefix in the cache.
     def inheritable_cache_set(formats, name, partial, param, prefix)
       formats.each do |format|
-        hf = inheritable_cache[format.to_sym]
-        inheritable_cache[format.to_sym] = hf if hf.empty?
-        hp = hf[partial]
-        hf[partial] = hp if hp.empty?
-        hn = hp[name]
-        hp[name] = hn if hn.empty?
+        # assign hash default values to respective key 
+        inheritable_cache[format.to_sym] = hf = inheritable_cache[format.to_sym]
+        hf[partial] = hp = hf[partial]
+        hp[name] = hn = hp[name]
+        # finally store prefix in the deepest hash
         hn[param] = prefix
       end
     end
     
   end
   
+  # Extend ActionView so templates are looked up on a find_template call.
   module View
     def self.included(base)
       base.send :alias_method_chain, :find_template, :lookup
     end
     
+    # Perform a template lookup if the prefix corresponds to the current controller's path.
     def find_template_with_lookup(name, prefix = nil, partial = false)
       if prefix == controller_path
         folder = controller.find_inheritable_template_folder(name, partial)
@@ -126,46 +134,4 @@ module RenderInheritable
     end
   end
   
-  module AbstractController
-    module ClassMethods
-      def render_inheritable
-        include RenderInheritable
-      end
-    end
-  end
-  
-  module Rendering
-    module ClassMethods
-      def self.included(base)
-        base.send :alias_method_chain, :view_context_class, :lookup
-      end
-      
-      # Define a view context class that includes the render inheritable
-      # modules.
-      def view_context_class_with_lookup
-        @view_context_class ||= begin
-          controller = self
-          Class.new(view_context_class_without_lookup) do
-            if controller.respond_to?(:template_lookup_path)
-              include RenderInheritable::View
-            end
-          end
-        end
-      end
-      
-    end
-  end
-  
-end
-
-module AbstractController
-  class Base
-    extend RenderInheritable::AbstractController::ClassMethods
-  end
-  
-  module Rendering
-    module ClassMethods
-      include RenderInheritable::Rendering::ClassMethods
-    end
-  end
 end

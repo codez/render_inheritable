@@ -1,0 +1,3 @@
+page << "/* Overriden Base JS */"
+page.replace 'element_id', :partial => 'inh_partial'
+page.replace 'other_id', :partial => 'over_partial'

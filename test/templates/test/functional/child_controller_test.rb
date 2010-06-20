@@ -15,5 +15,19 @@ class ChildControllerTest < ActionController::TestCase
     assert_match /^inherited partial base$/i, @response.body
     assert_match /^overriden partial child$/i, @response.body
   end
+    
+  test "base template and partials are rendered for inherited format js" do
+    get :inherited, :format => :js
+    assert_match /inherited base js/i, @response.body
+    assert_match /inherited partial base/i, @response.body
+    assert_match /overriden partial child/i, @response.body
+  end
+    
+  test "child template and partials are rendered for override format js" do
+    get :overriden, :format => :js
+    assert_match /overriden child js/i, @response.body
+    assert_match /inherited partial base/i, @response.body
+    assert_match /overriden partial child/i, @response.body
+  end
   
 end

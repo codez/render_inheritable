@@ -1,5 +1,77 @@
 = RENDER INHERITABLE
 
-A Rails plugin that allows one to inherit or override single partials and templates for controller subclasses.
+A Rails 3 plugin that allows one to inherit or override single templates for controller subclasses. Finally, also views and partials remain DRY!
 
-This gem gives you inheritable views and partials. In the default case, a template is searched in the current controller's view folder. If it is not found there, the template with the same name in the view folder of the superclass controller is used. This lookup path might be customized as well.
+In the default case, a template is searched in the current controller's view folder. If it is not found there, the template with the same name in the view folder of the superclass controller is used. Have a look at the examples for more clarification.
+
+Install the gem with
+ gem install render_inheritable
+
+In your Rails application's +Gemfile+, add
+ gem 'render_inheritable'
+
+To use inheritable templates in a certain controller hierarchy, add this call to the base controller:
+ render_inheritable
+
+That's it, no more duplications in your views and partials.
+
+== Example
+
+Suppose we have the following files in our Rails app:
+
+# controllers/crud_controller.rb:
+ class CrudController < ApplicationController
+   # use render inheritable for this controller hierarchy
+   render_inheritable
+
+   def index
+     # set @entries in subclasses
+   end
+   ...
+ end
+
+# controllers/messages_controller.rb:
+ class MessagesController < CrudController
+   def index
+     @entries = Message.all
+   end
+   ...
+ end
+
+# views/crud/index.html.erb:
+ <h1>Listing</h1>
+   
+ <%= render :partial => 'list' %>
+   
+ <%= link_to 'New Entry', :url => {:action => 'new'} %>
+
+# views/crud/_list.html.erb:
+ <ul>
+   <% @entries.each do |entry| %>
+  	 <li><%= render :partial => 'entry', :object => 'entry' %></li>
+   <% end %>
+ </ul>
+
+# views/crud/_entry.html.erb
+ <%= entry.to_s %>
+
+Nothing sophisticated, but it will do to explain our little gem. With the call to _render_inheritable_ in the CrudController, we tell all +render+ calls in this controller, its subclasses and their corresponding views to perform a template lookup. What does this mean? When we call the index action of our MessagesController, no corresponding template is found in _views/messages/index.html.erb_. The lookup proceeds to the superclass controller, where it finds the template in _views/crud/index.html.erb_. The same holds for the two partials _views/crud/_list.html.erb_ and _views/crud/_entry.html.erb_. 
+
+With this mechanism, we are able to define generic templates that are *inherited* to various controllers. There is no need to duplicate templates when they basically look the same.
+
+If we need to customize a certain part, it is possible to *override* a single template or partial. Say we would like to present a custom entry for messages. Just introduce the corresponding partial:
+
+# views/messages/_entry.html.erb
+ <%= entry.title %>: <%= truncate(entry.body, :length => 20) %>
+
+
+Now, the <code>render :partial => 'entry'</code> call in _views/crud/_list.html.erb_ will find the partial in the _views/messages_ folder and render it. The other two templates do not have to be touched and are still inherited form the _crud_ folder. So it's possible to customize certain HTML snippets by using specifically 'overriden' partials. For this example, you could also create a partial _views/messages/_list.html.erb_ to display a table instead of a list for messages.
+
+Of course, the lookup not only works for HTML templates and partials, but for any format. Even <code>page.replace 'element_id', :partial => 'element'</code> calls in RJS templates benefit from this gem.
+
+
+== Custom Lookup Paths
+
+To support more advanced lookups, it is possible to customize the used lookup path. You may override the method <code>self.template_lookup_path(param = nil)</code> in the controller where you defined +render_inheritable+. This method is expected to return an ordered list of controller_paths where the templates are looked for.
+
+With the optional parameter +param+, definable in the controller instance method +template_lookup_param+, lookup paths may even be dynamic. This would allow you, for example, to perform a template lookup based on a type attribute from your model instance. Each type would get an own _views_ subfolder, where specific views or partials might be overriden. These subfolders then would not need to match to an existing controller.

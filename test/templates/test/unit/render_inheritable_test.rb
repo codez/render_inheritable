@@ -74,10 +74,10 @@ class RenderInheritableTest < ActiveSupport::TestCase
     assert_equal ['grand_children', 'children', 'root'], GrandChildrenController.send(:inheritance_lookup_path)
   end
   
-#  test "inheritable controller without routes finds root" do
-#    assert_equal 'root', ChildrenController.send(:inheritable_controller)
-#    assert_equal 'root', GrandChildrenController.send(:inheritable_controller)
-#  end
+  test "inheritable controller finds controller instance" do
+    assert_equal 'children', ChildrenController.send(:inheritable_controller)
+    assert_equal 'grand_children', GrandChildrenController.send(:inheritable_controller)
+  end
     
   test "find non-existing inheritable file" do
     assert_nil @controller.send(:find_inheritable_template_folder, 'foo')
@@ -142,21 +142,13 @@ class RenderInheritableTest < ActiveSupport::TestCase
     assert_equal({:html => { false => { 'all' => {nil => 'children'}}}}, ChildrenController.send(:inheritable_cache))
     assert_equal({:html => { false => { 'all' => {nil => 'grand_children'}}}}, GrandChildrenController.send(:inheritable_cache))    
   end
-  
-  
 
   private
   
   def touch(file)
-    #File.touch_template(file)
     f = File.join(TEST_VIEW_PATH, file)
     FileUtils.mkdir_p(File.dirname(f))
     FileUtils.touch(f)
-    
-    #RootController.view_paths.last.instance_variable_set(:@loaded, false)
-    #RootController.view_paths.last.load!
   end
-  
-  
   
 end
