@@ -1,6 +1,13 @@
 require File.join(File.dirname(__FILE__), 'rails_integration')
 
-# Inherit or override single partials and templates for controller subclasses.
+# Allows one to render inheritable views and partials.
+# If no view file is found for the current controller, the corresponding file
+# is looked up in its superclass hierarchy. This module must only be
+# included in the root controller of the desired lookup hierarchy.
+# 
+# By default, this module only supports direct inheritance over one level. By overriding
+# the method lookup_path, you may define a custom lookup path. By providing an object
+# for the 'with' parameter, this path may even be dynamic.
 module RenderInheritable
   
   # Add inheritable_root_path method to including controller.
