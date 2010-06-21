@@ -24,6 +24,7 @@ END
 	end.to_a 
 	spec.files = FileList['lib/**/*', 'test/templates/**/*', 'Rakefile'].to_a + readmes 
     spec.require_path = 'lib'
+    spec.add_dependency 'rails', '3.0.0.beta4'
     
 	spec.has_rdoc = true 
 	spec.extra_rdoc_files = readmes 

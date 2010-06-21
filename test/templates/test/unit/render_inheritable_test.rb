@@ -1,7 +1,7 @@
 require 'rails'
 require 'test_helper'
 
-TEST_VIEW_PATH = File.join(RAILS_ROOT, 'test', 'test_views')
+TEST_VIEW_PATH = File.join(Rails.root, 'test', 'test_views')
 
 class RootController < ActionController::Base
   render_inheritable

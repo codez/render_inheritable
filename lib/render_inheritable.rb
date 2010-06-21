@@ -69,6 +69,15 @@ module RenderInheritable
       path.collect(&:controller_path)
     end
     
+    # Override view context class to includes the render inheritable modules.
+    def view_context_class
+      @view_context_class ||= begin
+        Class.new(super) do
+          include RenderInheritable::View
+        end
+      end
+    end
+    
     private
     
     # Performs a lookup for a template folder using the cache.
