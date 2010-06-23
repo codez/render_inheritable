@@ -69,6 +69,8 @@ Now, the <code>render :partial => 'entry'</code> call in <i>views/crud/_list.htm
 
 Of course, the lookup not only works for HTML templates and partials, but for any format. Even <code>page.replace 'element_id', :partial => 'element'</code> calls in RJS templates benefit from this gem.
 
+Wait! What if I want to render a specific partial, without getting it overriden somewhere else? No problem, just specifiy the complete path:
+ <%= render :partial => 'parent/show' %>
 
 == Custom Lookup Paths
 
