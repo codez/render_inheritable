@@ -1,9 +1,8 @@
-require 'rails'
 require 'test_helper'
 
 TEST_VIEW_PATH = File.join(Rails.root, 'test', 'test_views')
 
-class RootController < ActionController::Base
+class RootController < ApplicationController
   render_inheritable
   
   attr_accessor :default_template_format

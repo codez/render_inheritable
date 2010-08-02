@@ -2,7 +2,12 @@ require 'rubygems'
 require "rake/testtask"
 require 'rake/gempackagetask' 
 require 'rake/rdoctask' 
-sdoc = (require 'sdoc' || true) rescue false
+sdoc = begin 
+  require 'sdoc'
+  true
+rescue Exception
+  false
+end
 
 load	'render_inheritable.gemspec'
 
@@ -24,7 +29,7 @@ namespace :test do
 		desc "Create a rails test application"
 		task :create do
 			unless File.exist?(TEST_APP_ROOT)
-				sh "rails _3.0.0.beta4_ new #{TEST_APP_ROOT}"
+				sh "rails new #{TEST_APP_ROOT}"
 			end
 		end
 		      
@@ -37,8 +42,8 @@ namespace :test do
     end
     
 		task :environment => :init do
-		  ::RAILS_ROOT = TEST_APP_ROOT
-		  ::RAILS_ENV = 'test'
+      ENV['RAILS_ROOT'] = TEST_APP_ROOT
+      ENV['RAILS_ENV'] = 'test'
 		  
 		  require(File.join(TEST_APP_ROOT, 'config', 'environment'))
 		end
