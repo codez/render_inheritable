@@ -5,12 +5,15 @@ A Rails 3 plugin that allows one to inherit or override single templates for con
 In the default case, a template is searched in the current controller's view folder. If it is not found there, the template with the same name in the view folder of the superclass controller is used. Have a look at the examples for more clarification.
 
 Install the gem with
+
  gem install render_inheritable
 
 In your Rails application's +Gemfile+, add
+
  gem 'render_inheritable'
 
 To use inheritable templates in a certain controller hierarchy, add this declaration to the respective base controller:
+
  render_inheritable
 
 That's it, no more duplications in your views and partials.
