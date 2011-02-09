@@ -18,6 +18,8 @@ To use inheritable templates in a certain controller hierarchy, add this declara
 
 That's it, no more duplications in your views and partials.
 
+To see render_inheritable in action, have a look at http://github.com/codez/dry_crud, which generates DRY and specifically extendable CRUD controller, views and helpers for Rails applications. Based on render_inheritable, you get overwritable, generic CRUD views for all the models you want.
+
 == Example
 
 Suppose we have the following files in our Rails app:
