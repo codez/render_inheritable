@@ -2,6 +2,8 @@
 
 A Rails 3 plugin that allows one to inherit or override single templates for controller hierarchies. Finally, also views and partials remain DRY!
 
+<b>As of Rails 3.1, the functionality of this plugin is built into the Rails core. So Render Inheritable is glad to go to retirement and enjoy life on its own.</b>
+
 In the default case, a template is searched in the current controller's view folder. If it is not found there, the template with the same name in the view folder of the superclass controller is used. Have a look at the examples for more clarification.
 
 Install the gem with
